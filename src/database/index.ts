@@ -1,9 +1,40 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { logger } from '../logger/index.ts';
+
+const isProduction = process.env['NODE_ENV'] === 'production';
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: PrismaClient;
 };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+export const prisma: PrismaClient =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: [
+      { level: 'query', emit: 'event' },
+      { level: 'warn', emit: 'event' },
+      { level: 'error', emit: 'event' }
+    ]
+  });
 
-if (process.env['NODE_ENV'] !== 'production') globalForPrisma.prisma = prisma;
+if (isProduction) {
+  globalForPrisma.prisma = prisma;
+} else {
+  // Only log queries in dev
+  prisma.$on('query' as never, (e: Prisma.QueryEvent) => {
+    logger.debug('Prisma query', {
+      query: e.query,
+      params: e.params,
+      duration: e.duration
+    });
+  });
+}
+
+// Always log warnings and errors
+prisma.$on('warn' as never, (e: Prisma.LogEvent) =>
+  logger.warn('Prisma warning', { message: e.message })
+);
+
+prisma.$on('error' as never, (e: Prisma.LogEvent) =>
+  logger.error('Prisma error', { message: e.message })
+);
