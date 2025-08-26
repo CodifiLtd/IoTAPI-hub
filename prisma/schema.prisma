@@ -1,0 +1,187 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  forename     String   @db.VarChar(100)
+  surname      String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(320)
+  phone        String?  @db.VarChar(30)
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  households   UserHousehold[]
+}
+
+model Role {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(30)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  users       UserHousehold[]
+}
+
+model Household {
+  id          Int             @id @default(autoincrement())
+  name        String          @db.VarChar(100)
+  description String?         @db.VarChar(100)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  users       UserHousehold[]
+  addresses   Address[]
+  rooms       Room[]
+  devices     Device[]
+}
+
+model UserHousehold {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  userId      Int
+  householdId Int
+  roleId      Int
+
+  user        User      @relation(fields: [userId], references: [id])
+  household   Household @relation(fields: [householdId], references: [id])
+  role        Role      @relation(fields: [roleId], references: [id])
+}
+
+model Address {
+  id            Int       @id @default(autoincrement())
+  addressLine1  String    @db.VarChar(50)
+  addressLine2  String?   @db.VarChar(50)
+  city          String    @db.VarChar(60)
+  postcode      String    @db.VarChar(15)
+  country       String    @db.VarChar(60)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  householdId   Int
+
+  household     Household @relation(fields: [householdId], references: [id])
+}
+
+model Room {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(30)
+  description String?   @db.VarChar(30)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  householdId Int
+
+  household   Household @relation(fields: [householdId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  devices     Device[]
+}
+
+model Device {
+  id                Int               @id @default(autoincrement())
+  serialNumber      String            @unique @db.VarChar(50)
+  name              String            @db.VarChar(50)
+  description       String?           @db.VarChar(50)
+  firmwareVersion   String?           @db.VarChar(10)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  householdId       Int
+  deviceTypeId      Int
+  roomId            Int?
+  operatingStatusId Int
+
+  household       Household           @relation(fields: [householdId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  deviceType      DeviceType          @relation(fields: [deviceTypeId], references: [id])
+  room            Room?               @relation(fields: [roomId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  operatingStatus OperatingStatus     @relation(fields: [operatingStatusId], references: [id])
+
+  configs        DeviceConfig[]
+  events         DeviceEvent[]
+  state          DeviceState?
+}
+
+model DeviceType {
+  id            Int       @id @default(autoincrement())
+  code          String    @db.VarChar(10)
+  description   String?   @db.VarChar(30)
+  manufacturer  String?   @db.VarChar(100)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  devices     Device[]
+}
+
+model OperatingStatus {
+  id          Int       @id @default(autoincrement())
+  code        String    @db.VarChar(10)
+  description String?   @db.VarChar(30)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  devices     Device[]
+}
+
+model DeviceConfig {
+  id        Int      @id @default(autoincrement())
+  config    String   @db.NVarChar(4000) // JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deviceId  Int
+  device    Device   @relation(fields: [deviceId], references: [id])
+}
+
+model EventType {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique @db.NVarChar(30)
+  description String?   @db.NVarChar(60)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  events DeviceEvent[]
+}
+
+model Source {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique @db.NVarChar(30) 
+  description String?   @db.NVarChar(60)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  events DeviceEvent[]
+}
+
+
+model DeviceEvent {
+  id           Int        @id @default(autoincrement())
+  payload      String     @db.NVarChar(4000) // JSON
+  createdAt    DateTime   @default(now())
+ 
+  eventTypeId  Int
+  sourceId     Int
+  deviceId     Int
+
+  eventType    EventType  @relation(fields: [eventTypeId], references: [id])
+  source       Source     @relation(fields: [sourceId], references: [id])
+  device       Device     @relation(fields: [deviceId], references: [id])
+}
+
+model DeviceState {
+  state      String   @db.NVarChar(4000) // JSON
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  deviceId   Int      @id
+
+  device     Device   @relation(fields: [deviceId], references: [id])
+}
