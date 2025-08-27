@@ -1,11 +1,12 @@
-import { Prisma, PrismaClient } from '@prisma/client';
-import { logger } from '../logger/index.ts';
+import { type Prisma, PrismaClient } from '@prisma/client';
+import { logger } from '../logger/index';
 
 const isProduction = process.env['NODE_ENV'] === 'production';
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient;
-};
+interface GlobalPrisma {
+  prisma: PrismaClient | undefined;
+}
+const globalForPrisma = globalThis as unknown as GlobalPrisma;
 
 export const prisma: PrismaClient =
   globalForPrisma.prisma ??
