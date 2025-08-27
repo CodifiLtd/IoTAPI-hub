@@ -33,14 +33,12 @@ model Role {
 
 model Household {
   id          Int             @id @default(autoincrement())
-  name        String          @db.VarChar(100)
+  name        String          @unique @db.VarChar(100)
   description String?         @db.VarChar(100)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
   users       UserHousehold[]
-  addresses   Address[]
-  rooms       Room[]
   devices     Device[]
 }
 
@@ -58,33 +56,6 @@ model UserHousehold {
   role        Role      @relation(fields: [roleId], references: [id])
 }
 
-model Address {
-  id            Int       @id @default(autoincrement())
-  addressLine1  String    @db.VarChar(50)
-  addressLine2  String?   @db.VarChar(50)
-  city          String    @db.VarChar(60)
-  postcode      String    @db.VarChar(15)
-  country       String    @db.VarChar(60)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  householdId   Int
-
-  household     Household @relation(fields: [householdId], references: [id])
-}
-
-model Room {
-  id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(30)
-  description String?   @db.VarChar(30)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  householdId Int
-
-  household   Household @relation(fields: [householdId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  devices     Device[]
-}
 
 model Device {
   id                Int               @id @default(autoincrement())
@@ -97,12 +68,10 @@ model Device {
 
   householdId       Int
   deviceTypeId      Int
-  roomId            Int?
   operatingStatusId Int
 
   household       Household           @relation(fields: [householdId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   deviceType      DeviceType          @relation(fields: [deviceTypeId], references: [id])
-  room            Room?               @relation(fields: [roomId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   operatingStatus OperatingStatus     @relation(fields: [operatingStatusId], references: [id])
 
   configs        DeviceConfig[]
@@ -112,7 +81,7 @@ model Device {
 
 model DeviceType {
   id            Int       @id @default(autoincrement())
-  code          String    @db.VarChar(10)
+  code          String    @unique @db.VarChar(10)
   description   String?   @db.VarChar(30)
   manufacturer  String?   @db.VarChar(100)
   createdAt     DateTime  @default(now())

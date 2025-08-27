@@ -45,12 +45,13 @@ export default tseslint.config(
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/no-unnecessary-condition': 'error',
       '@typescript-eslint/no-confusing-void-expression': 'error',
-      '@typescript-eslint/prefer-as-const': 'error'
+      '@typescript-eslint/prefer-as-const': 'error',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off'
     }
   },
 
