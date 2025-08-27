@@ -45,10 +45,11 @@ export async function authenticateUser(
     }
 
     req['userId'] = user.id;
+    req['households'] = user.households;
 
     next();
   } catch (err) {
-    logger.warn('Authentication failed', err);
+    logger.error('Authentication failed', err);
 
     res.status(401).json({ error: 'Invalid or expired token' });
 

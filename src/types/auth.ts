@@ -17,4 +17,8 @@ export interface AuthenticatedRequest<
   ReqQuery = Record<string, unknown> // req.query
 > extends Request<P, ResBody, ReqBody, ReqQuery> {
   userId?: number;
+  households?: {
+    id: number;
+    roleId: number;
+  }[];
 }

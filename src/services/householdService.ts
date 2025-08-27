@@ -1,10 +1,10 @@
 import { prisma } from '../database/index';
 
-import type { Household, Prisma } from '@prisma/client';
+import type { Household } from '@prisma/client';
+import type { HouseholdRequest } from '../schemas/household';
 
 export async function createHousehold(
-  data: Prisma.HouseholdCreateInput,
-  userId: number
+  data: HouseholdRequest
 ): Promise<Household> {
   return prisma.household.create({
     data: {
@@ -12,7 +12,7 @@ export async function createHousehold(
       description: data.description,
       users: {
         create: {
-          user: { connect: { id: userId } },
+          user: { connect: { id: data.userId } },
           role: { connect: { id: 1 } }
         }
       }

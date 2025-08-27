@@ -20,10 +20,7 @@ export async function registerHousehold(
 
     logger.info('Creating household');
 
-    const household: Household = await createHousehold(
-      validatedData,
-      req.userId!
-    );
+    const household: Household = await createHousehold(validatedData);
 
     logger.info(`Household created: ${household.name} (ID: ${household.id})`);
 

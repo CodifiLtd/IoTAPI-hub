@@ -68,11 +68,9 @@ model Device {
 
   householdId       Int
   deviceTypeId      Int
-  operatingStatusId Int
 
   household       Household           @relation(fields: [householdId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   deviceType      DeviceType          @relation(fields: [deviceTypeId], references: [id])
-  operatingStatus OperatingStatus     @relation(fields: [operatingStatusId], references: [id])
 
   configs        DeviceConfig[]
   events         DeviceEvent[]
@@ -86,16 +84,6 @@ model DeviceType {
   manufacturer  String?   @db.VarChar(100)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
-  devices     Device[]
-}
-
-model OperatingStatus {
-  id          Int       @id @default(autoincrement())
-  code        String    @db.VarChar(10)
-  description String?   @db.VarChar(30)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
 
   devices     Device[]
 }

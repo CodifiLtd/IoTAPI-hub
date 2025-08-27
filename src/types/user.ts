@@ -1,3 +1,8 @@
 import type { User } from '@prisma/client';
 
-export type SafeUser = Omit<User, 'password' | 'updatedAt'>;
+export type SafeUser = Omit<User, 'password' | 'updatedAt'> & {
+  households: {
+    id: number;
+    roleId: number;
+  }[];
+};

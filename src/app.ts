@@ -39,7 +39,7 @@ app.use(
     _next: NextFunction
   ): Response<{ error: string }> => {
     logger.error(err.message, { stack: err.stack });
-    console.log(res);
+
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 );

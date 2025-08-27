@@ -24,7 +24,13 @@ export async function getUserById(id: number): Promise<SafeUser | null> {
       surname: true,
       email: true,
       phone: true,
-      createdAt: true
+      createdAt: true,
+      households: {
+        select: {
+          id: true,
+          roleId: true
+        }
+      }
     }
   });
 }
