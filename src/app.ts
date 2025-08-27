@@ -3,10 +3,13 @@ import helmet from 'helmet';
 import cors from 'cors';
 import { logger } from './logger/index';
 import routes from './routes/index';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
 
 import type { Application, NextFunction, Request, Response } from 'express';
 
 const app: Application = express();
+const openapiDocument = YAML.load('./openapi.yaml');
 
 app.use(cors());
 app.use(helmet());
@@ -22,6 +25,8 @@ app.get(
     return res.status(200).json({ status: 'ok' });
   }
 );
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
 app.use('/api/v1', routes);
 
