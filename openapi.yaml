@@ -137,6 +137,33 @@ paths:
           description: Device already exists
         '500':
           description: Internal server error
+
+  /devices/{id}:
+    get:
+      summary: Get a device by ID (protected)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Device found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceRegistration'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (user not authorised)
+        '404':
+          description: Device not found
+        '500':
+          description: Internal server error
 components:
   securitySchemes:
     bearerAuth:

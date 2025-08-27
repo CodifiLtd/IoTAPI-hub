@@ -23,3 +23,9 @@ export async function createDevice(data: DeviceRequest): Promise<Device> {
     }
   });
 }
+
+export async function getDeviceById(id: number): Promise<Device | null> {
+  return await prisma.device.findUnique({
+    where: { id }
+  });
+}

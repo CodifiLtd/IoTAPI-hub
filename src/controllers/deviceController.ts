@@ -5,10 +5,10 @@ import type { Response } from 'express';
 import type { ApiResponse } from '../types/api';
 import type { Device } from '@prisma/client';
 import type { AuthenticatedRequest } from '../types/auth';
-import type { DeviceRequest } from '../schemas/device';
-import { deviceSchema } from '../schemas/device';
+import type { DeviceIdParams, DeviceRequest } from '../schemas/device';
+import { deviceIdParamsSchema, deviceSchema } from '../schemas/device';
 import type { registerDeviceSuccess } from '../types/device';
-import { createDevice } from '../services/deviceService';
+import { createDevice, getDeviceById } from '../services/deviceService';
 
 export async function registerDevice(
   req: AuthenticatedRequest<unknown, unknown, DeviceRequest>,
@@ -43,6 +43,45 @@ export async function registerDevice(
       householdId,
       deviceTypeId
     });
+  } catch (err) {
+    return handleApiError(err, res);
+  }
+}
+
+export async function getDevice(
+  req: AuthenticatedRequest<DeviceIdParams>,
+  res: Response<ApiResponse<Device>>
+): Promise<Response<ApiResponse<Device>>> {
+  try {
+    logger.info('Get device by ID request');
+
+    const parsed = deviceIdParamsSchema.safeParse(req.params);
+
+    if (!parsed.success) {
+      return handleApiError(parsed.error, res);
+    }
+
+    const { id } = parsed.data;
+
+    logger.info('Retrieving device');
+
+    const device: Device | null = await getDeviceById(id);
+
+    if (!device) {
+      logger.error('Device not found');
+
+      return res.status(404).json({ error: 'Device not found' });
+    }
+
+    if (
+      !req.households?.some(household => household.id == device.householdId)
+    ) {
+      logger.error('User not authorised');
+
+      return res.status(403).json({ error: 'User not authorised' });
+    }
+
+    return res.json(device);
   } catch (err) {
     return handleApiError(err, res);
   }

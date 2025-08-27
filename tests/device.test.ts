@@ -1,5 +1,6 @@
 import request from 'supertest';
 import app from '../src/app';
+import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 jest.mock('../src/logger', () => ({
@@ -14,6 +15,20 @@ jest.mock('../src/logger', () => ({
 jest.mock('../src/services/deviceService', () => ({
   createDevice: jest.fn().mockImplementation(device => {
     if (device.householdId === 1) {
+      return Promise.resolve({
+        id: 1,
+        serialNumber: 'ABC123',
+        name: 'Some name',
+        description: 'Some description',
+        firmwareVersion: '',
+        householdId: 1,
+        deviceTypeId: 1
+      });
+    }
+    return Promise.resolve(null);
+  }),
+  getDeviceById: jest.fn().mockImplementation(id => {
+    if (id === 1) {
       return Promise.resolve({
         id: 1,
         serialNumber: 'ABC123',
@@ -125,5 +140,54 @@ describe('POST /devices', () => {
       'error',
       'Guest not permitted to register device to household'
     );
+  });
+});
+
+describe('GET /devices/:id', () => {
+  it('should return 200 and the device for authenticated user', async () => {
+    const res = await request(app)
+      .get('/api/v1/devices/1')
+      .set('Authorization', `Bearer ${validToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('id', 1);
+    expect(res.body).toHaveProperty('serialNumber', 'ABC123');
+  });
+
+  it('should return 401 if no token is provided', async () => {
+    const res = await request(app).get('/api/v1/devices/1');
+    expect(res.status).toBe(401);
+  });
+
+  it('should return 404 if device not found', async () => {
+    const res = await request(app)
+      .get('/api/v1/devices/999')
+      .set('Authorization', `Bearer ${validToken}`);
+    expect(res.status).toBe(404);
+  });
+
+  it('should return 403 if user not authorised', async () => {
+    jest.resetModules();
+    jest.mock('../src/services/userService', () => ({
+      getUserById: jest.fn().mockImplementation(id => {
+        if (id === 1) {
+          return Promise.resolve({
+            id: 1,
+            email: 'joebloggs@example.com',
+            forename: 'Joe',
+            surname: 'Bloggs',
+            phone: '1234567890',
+            households: [{ id: 2, roleId: 3 }]
+          });
+        }
+        return Promise.resolve(null);
+      })
+    }));
+
+    const appWithMock = require('../src/app').default;
+    const res = await request(appWithMock)
+      .get('/api/v1/devices/1')
+      .set('Authorization', `Bearer ${validToken}`);
+    expect(res.status).toBe(403);
+    expect(res.body).toHaveProperty('error', 'User not authorised');
   });
 });

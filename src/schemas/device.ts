@@ -9,4 +9,9 @@ export const deviceSchema = z.object({
   deviceTypeId: z.number('Device Type ID is required')
 });
 
+export const deviceIdParamsSchema = z.object({
+  id: z.string().regex(/^\d+$/, 'Device ID must be a number').transform(Number)
+});
+
 export type DeviceRequest = z.infer<typeof deviceSchema>;
+export type DeviceIdParams = z.infer<typeof deviceIdParamsSchema>;
