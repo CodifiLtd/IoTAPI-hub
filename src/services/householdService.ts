@@ -6,7 +6,7 @@ import type { HouseholdRequest } from '../schemas/household';
 export async function createHousehold(
   data: HouseholdRequest
 ): Promise<Household> {
-  return prisma.household.create({
+  return await prisma.household.create({
     data: {
       name: data.name,
       description: data.description,

@@ -1,10 +1,10 @@
 import { prisma } from '../database/index';
 
-import type { Prisma, User } from '@prisma/client';
+import type { Device, Prisma, User } from '@prisma/client';
 import type { SafeUser } from '../types/user';
 
 export async function createUser(data: Prisma.UserCreateInput): Promise<User> {
-  return prisma.user.create({
+  return await prisma.user.create({
     data: {
       forename: data.forename,
       surname: data.surname,
@@ -16,7 +16,7 @@ export async function createUser(data: Prisma.UserCreateInput): Promise<User> {
 }
 
 export async function getUserById(id: number): Promise<SafeUser | null> {
-  return prisma.user.findUnique({
+  return await prisma.user.findUnique({
     where: { id },
     select: {
       id: true,
@@ -36,7 +36,30 @@ export async function getUserById(id: number): Promise<SafeUser | null> {
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
-  return prisma.user.findUnique({
+  return await prisma.user.findUnique({
     where: { email }
   });
+}
+
+export async function getUserDevicesById(userId: number): Promise<Device[]> {
+  const userWithDevices = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      households: {
+        select: {
+          household: {
+            select: {
+              devices: {}
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Flatten devices across all households
+  const devices: Device[] =
+    userWithDevices?.households.flatMap(h => h.household.devices) ?? [];
+
+  return devices;
 }

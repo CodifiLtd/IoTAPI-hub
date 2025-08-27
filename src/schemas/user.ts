@@ -8,9 +8,9 @@ export const userSchema = z.object({
   phone: z.string().optional().default('null')
 });
 
-export const getUserByIdParamsSchema = z.object({
+export const userIdParamsSchema = z.object({
   id: z.string().regex(/^\d+$/, 'User ID must be a number').transform(Number)
 });
 
 export type User = z.infer<typeof userSchema>;
-export type GetUserByIdParams = z.infer<typeof getUserByIdParamsSchema>;
+export type UserIdParams = z.infer<typeof userIdParamsSchema>;

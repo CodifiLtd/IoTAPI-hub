@@ -12,7 +12,7 @@ export async function createDevice(data: DeviceRequest): Promise<Device> {
     householdId,
     deviceTypeId
   } = data;
-  return prisma.device.create({
+  return await prisma.device.create({
     data: {
       serialNumber,
       name,

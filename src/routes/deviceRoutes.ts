@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { authenticateUser } from '../middleware/authenticateUser';
 import { registerDevice } from '../controllers/deviceController';
-import { canUserRegisterDevice } from '../middleware/canUserRegisterDevice';
+import { isGuest } from '../middleware/canUserRegisterDevice';
+import { checkUserHouseholdId } from '../middleware/checkUserHouseholdId';
 
 const router = Router();
 
 router.use(authenticateUser);
-router.post('/', canUserRegisterDevice, registerDevice);
+router.post('/', checkUserHouseholdId, isGuest, registerDevice);
 
 export default router;
