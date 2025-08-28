@@ -10,6 +10,12 @@ import type { LoginSuccess } from '../types/auth';
 import type { User } from '@prisma/client';
 import { logger } from '../logger/index';
 
+/**
+ * Authenticates a user and returns a JWT token if credentials are valid.
+ * @param req Express request containing login credentials
+ * @param res Express response object
+ * @returns Login success data with JWT token
+ */
 export async function login(
   req: Request<unknown, unknown, LoginRequest>,
   res: Response<ApiResponse<LoginSuccess>>

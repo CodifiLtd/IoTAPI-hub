@@ -2,6 +2,12 @@ import { prisma } from '../database/index';
 
 import type { DeviceConfig } from '@prisma/client';
 
+/**
+ * Creates or updates the config for a device.
+ * @param deviceId Device ID
+ * @param config Config object
+ * @returns Upserted device config
+ */
 export async function upsertDeviceConfig(
   deviceId: number,
   config: Record<string, unknown>
@@ -23,6 +29,11 @@ export async function upsertDeviceConfig(
   return deviceConfig;
 }
 
+/**
+ * Retrieves the config for a device by its ID.
+ * @param deviceId Device ID
+ * @returns Device config or null
+ */
 export async function getDeviceConfigById(
   deviceId: number
 ): Promise<DeviceConfig | null> {

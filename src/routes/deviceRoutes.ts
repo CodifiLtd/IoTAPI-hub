@@ -11,6 +11,9 @@ import { checkUserHouseholdId } from '../middleware/checkUserHouseholdId';
 import type { DeviceIdParams } from '../schemas/device';
 import type { DeviceConfigRequest } from '../schemas/deviceConfig';
 
+/**
+ * Express router for device-related endpoints (register, get, delete, config).
+ */
 const router = Router();
 
 router.use(authenticateUser);

@@ -6,6 +6,15 @@ import { prismaErrorMessages } from './errorMessages';
 import type { Response } from 'express';
 import type { ApiResponse } from '../types/api'; //
 
+/**
+ * Handles API errors and sends appropriate HTTP responses based on error type.
+ * Supports Zod validation errors, Prisma errors, and generic errors.
+ * @template T - Type of the API response data.
+ * @param {unknown} err - The error object thrown in the API route.
+ * @param {Response<ApiResponse<T>>} res - Express response object.
+ * @param {number} [status=500] - Optional HTTP status code for generic errors.
+ * @returns {Response<ApiResponse<T>>} - The HTTP response with error message.
+ */
 export function handleApiError<T>(
   err: unknown,
   res: Response<ApiResponse<T>>,

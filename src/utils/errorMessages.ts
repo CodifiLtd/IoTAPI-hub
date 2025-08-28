@@ -1,4 +1,8 @@
-// https://github.com/yousefhany77/prisma-better-errors
+/**
+ * Maps Prisma error codes to HTTP status and user-friendly error messages.
+ * Used by error handler to translate Prisma errors to API responses.
+ * @see https://github.com/yousefhany77/prisma-better-errors
+ */
 export const prismaErrorMessages: Record<
   string,
   { status: number; message: string } | undefined

@@ -15,6 +15,12 @@ import type { User as UserRequest, UserIdParams } from '../schemas/user';
 import type { User, Device } from '@prisma/client';
 import type { AuthenticatedRequest } from '../types/auth';
 
+/**
+ * Registers a new user with hashed password.
+ * @param req Authenticated request containing user registration data
+ * @param res Express response object
+ * @returns Registered user data
+ */
 export async function registerUser(
   req: AuthenticatedRequest<unknown, unknown, UserRequest>,
   res: Response<ApiResponse<RegisterUserSuccess>>
@@ -43,6 +49,12 @@ export async function registerUser(
   }
 }
 
+/**
+ * Retrieves a user by their ID.
+ * @param req Authenticated request with user ID param
+ * @param res Express response object
+ * @returns Safe user data
+ */
 export async function getUser(
   req: AuthenticatedRequest<UserIdParams>,
   res: Response<ApiResponse<SafeUser>>
@@ -74,6 +86,12 @@ export async function getUser(
   }
 }
 
+/**
+ * Retrieves all devices for a user by their ID.
+ * @param req Authenticated request with user ID param
+ * @param res Express response object
+ * @returns Array of devices for the user
+ */
 export async function getUserDevices(
   req: AuthenticatedRequest<UserIdParams>,
   res: Response<ApiResponse<Device[]>>

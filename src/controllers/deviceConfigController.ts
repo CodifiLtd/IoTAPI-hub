@@ -10,6 +10,12 @@ import type { DeviceConfig } from '@prisma/client';
 import { logger } from '../logger';
 import { handleApiError } from '../utils/errorHandler';
 
+/**
+ * Creates or updates the config for a device.
+ * @param req Authenticated request with device ID param and config in body
+ * @param res Express response object
+ * @returns Upserted device config object
+ */
 export async function upsertConfig(
   req: AuthenticatedRequest<DeviceIdParams, unknown, DeviceConfigRequest>,
   res: Response<ApiResponse<DeviceConfig>>
@@ -43,6 +49,12 @@ export async function upsertConfig(
   }
 }
 
+/**
+ * Retrieves the config for a device by its ID.
+ * @param req Authenticated request with device ID param
+ * @param res Express response object
+ * @returns Device config object
+ */
 export async function getConfig(
   req: AuthenticatedRequest<DeviceIdParams>,
   res: Response<ApiResponse<DeviceConfig>>

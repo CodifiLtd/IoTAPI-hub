@@ -6,6 +6,9 @@ import deviceRoutes from '../routes/deviceRoutes';
 
 import type { Router as IRouter } from 'express';
 
+/**
+ * Main Express router combining all API route modules.
+ */
 const router: IRouter = Router();
 
 router.use('/users', userRoutes);

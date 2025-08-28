@@ -7,6 +7,9 @@ import {
 import { authenticateUser } from '../middleware/authenticateUser';
 import { checkUserId } from '../middleware/checkUserId';
 
+/**
+ * Express router for user-related endpoints (register, get, devices).
+ */
 const router = Router();
 
 // Public route

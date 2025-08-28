@@ -9,6 +9,12 @@ import { type HouseholdRequest, householdSchema } from '../schemas/household';
 import type { registerHouseholdSuccess } from '../types/household';
 import { createHousehold } from '../services/householdService';
 
+/**
+ * Registers a new household.
+ * @param req Authenticated request containing household registration data
+ * @param res Express response object
+ * @returns Registered household data
+ */
 export async function registerHousehold(
   req: AuthenticatedRequest<unknown, unknown, HouseholdRequest>,
   res: Response<ApiResponse<registerHouseholdSuccess>>

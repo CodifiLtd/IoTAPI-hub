@@ -3,6 +3,11 @@ import { prisma } from '../database/index';
 import type { Device } from '@prisma/client';
 import type { DeviceRequest } from '../schemas/device';
 
+/**
+ * Creates a new device in the database.
+ * @param data Device registration data
+ * @returns Created device
+ */
 export async function createDevice(data: DeviceRequest): Promise<Device> {
   const {
     serialNumber,
@@ -24,6 +29,11 @@ export async function createDevice(data: DeviceRequest): Promise<Device> {
   });
 }
 
+/**
+ * Retrieves a device by its ID, including config.
+ * @param id Device ID
+ * @returns Device with config or null
+ */
 export async function getDeviceById(id: number): Promise<Device | null> {
   return await prisma.device.findUnique({
     where: { id },
@@ -31,6 +41,12 @@ export async function getDeviceById(id: number): Promise<Device | null> {
   });
 }
 
+/**
+ * Deletes a device by its ID if it belongs to the specified household.
+ * @param deviceId Device ID
+ * @param householdId Household ID
+ * @returns Deleted device or null
+ */
 export async function deleteDeviceById(
   deviceId: number,
   householdId: number

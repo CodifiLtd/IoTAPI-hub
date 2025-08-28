@@ -23,6 +23,12 @@ import {
   getDeviceById
 } from '../services/deviceService';
 
+/**
+ * Registers a new device for a household.
+ * @param req Authenticated request containing device registration data
+ * @param res Express response object
+ * @returns Registered device data
+ */
 export async function registerDevice(
   req: AuthenticatedRequest<unknown, unknown, DeviceRequest>,
   res: Response<ApiResponse<registerDeviceSuccess>>
@@ -61,6 +67,12 @@ export async function registerDevice(
   }
 }
 
+/**
+ * Retrieves a device by its ID, including config if present.
+ * @param req Authenticated request with device ID param
+ * @param res Express response object
+ * @returns Device data with config
+ */
 export async function getDevice(
   req: AuthenticatedRequest<DeviceIdParams>,
   res: Response<ApiResponse<DeviceWithConfig>>
@@ -103,6 +115,12 @@ export async function getDevice(
   }
 }
 
+/**
+ * Deletes a device by its ID if user is authorised.
+ * @param req Authenticated request with device ID param and householdId in body
+ * @param res Express response object
+ * @returns Success message and deleted device ID
+ */
 export async function deleteDevice(
   req: AuthenticatedRequest<DeviceIdParams, unknown, DeleteDeviceRequest>,
   res: Response<ApiResponse<DeleteDeviceSuccess>>
