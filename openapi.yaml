@@ -9,6 +9,8 @@ servers:
 paths:
   /users:
     post:
+      tags:
+        - Users
       summary: Register a new user
       requestBody:
         required: true
@@ -26,6 +28,8 @@ paths:
         '500':
           description: Internal server error
     get:
+      tags:
+        - Users
       summary: Get user by ID (protected)
       security:
         - bearerAuth: []
@@ -48,6 +52,8 @@ paths:
           description: Internal server error
   /users/{id}/devices:
     get:
+      tags:
+        - Users
       summary: Get all devices for a user (protected)
       security:
         - bearerAuth: []
@@ -74,8 +80,11 @@ paths:
           description: User not found
         '500':
           description: Internal server error
+  
   /login:
     post:
+      tags:
+        - Login
       summary: Login
       requestBody:
         required: true
@@ -92,8 +101,11 @@ paths:
           description: Validation error
         '500':
           description: Internal server error
+  
   /households:
     post:
+      tags:
+        - Households
       summary: Register a new household (protected)
       security:
         - bearerAuth: []
@@ -115,6 +127,8 @@ paths:
 
   /devices:
     post:
+      tags:
+        - Devices
       summary: Register a new device (protected)
       security:
         - bearerAuth: []
@@ -140,6 +154,8 @@ paths:
 
   /devices/{id}:
     get:
+      tags:
+        - Devices
       summary: Get a device by ID (protected)
       security:
         - bearerAuth: []
