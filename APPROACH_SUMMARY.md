@@ -89,3 +89,10 @@ This separation is deliberate:
 - **Config history**: optional enhancement if future requirements demand auditing of past configs.
 
 - **UI**: Delivering the stretch goal frontend would complete the end-to-end flow.
+
+## Github Copilot Usage
+
+- openapi yaml
+- jsdoc annotations
+- readme and summary support
+- debug support when required
