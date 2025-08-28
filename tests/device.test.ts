@@ -1,8 +1,6 @@
 import request from 'supertest';
 import app from '../src/app';
-import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { deleteDeviceById } from '../src/services/deviceService';
 
 jest.mock('../src/logger', () => ({
   logger: {
@@ -37,7 +35,10 @@ jest.mock('../src/services/deviceService', () => ({
         description: 'Some description',
         firmwareVersion: '',
         householdId: 1,
-        deviceTypeId: 1
+        deviceTypeId: 1,
+        config: {
+          foo: 'bar'
+        }
       });
     }
     return Promise.resolve(null);
@@ -159,13 +160,28 @@ describe('POST /devices', () => {
 });
 
 describe('GET /devices/:id', () => {
-  it('should return 200 and the device for authenticated user', async () => {
+  it('should return 200 and the device for authenticated user, including config', async () => {
+    const deviceService = require('../src/services/deviceService');
+    deviceService.getDeviceById = jest.fn().mockResolvedValue({
+      id: 1,
+      serialNumber: 'ABC123',
+      name: 'Some name',
+      description: 'Some description',
+      firmwareVersion: '',
+      householdId: 1,
+      deviceTypeId: 1,
+      config: {
+        config: '{"foo":"bar"}'
+      }
+    });
     const res = await request(app)
       .get('/api/v1/devices/1')
       .set('Authorization', `Bearer ${validToken}`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('id', 1);
     expect(res.body).toHaveProperty('serialNumber', 'ABC123');
+    expect(res.body).toHaveProperty('config');
+    expect(res.body.config).toEqual({ foo: 'bar' });
   });
 
   it('should return 401 if no token is provided', async () => {

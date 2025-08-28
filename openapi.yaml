@@ -155,7 +155,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceRegistration'
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  serialNumber:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  firmwareVersion:
+                    type: string
+                  householdId:
+                    type: integer
+                  deviceTypeId:
+                    type: integer
+                  config:
+                    type: object
+                    nullable: true
         '401':
           description: Unauthorized
         '403':
@@ -220,6 +238,145 @@ paths:
                     type: string
         '404':
           description: Device not found or not part of household
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /devices/{id}/config:
+    get:
+      summary: Get device config
+      description: Retrieve the config for a device (protected)
+      tags:
+        - Devices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Device config found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  config:
+                    type: object
+                  deviceId:
+                    type: integer
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Device config not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    put:
+      summary: Upsert device config
+      description: Create or update a device config (protected)
+      tags:
+        - Devices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                config:
+                  type: object
+      responses:
+        '200':
+          description: Device config upserted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  config:
+                    type: object
+                  deviceId:
+                    type: integer
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Device not found
           content:
             application/json:
               schema:

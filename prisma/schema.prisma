@@ -72,7 +72,7 @@ model Device {
   household       Household           @relation(fields: [householdId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   deviceType      DeviceType          @relation(fields: [deviceTypeId], references: [id])
 
-  configs        DeviceConfig[]
+  config         DeviceConfig?
   events         DeviceEvent[]
   state          DeviceState?
 }
@@ -94,7 +94,7 @@ model DeviceConfig {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  deviceId  Int
+  deviceId  Int      @unique
   device    Device   @relation(fields: [deviceId], references: [id])
 }
 

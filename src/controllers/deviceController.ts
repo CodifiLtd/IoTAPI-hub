@@ -14,6 +14,7 @@ import type {
 import { deviceIdParamsSchema, deviceSchema } from '../schemas/device';
 import type {
   DeleteDeviceSuccess,
+  DeviceWithConfig,
   registerDeviceSuccess
 } from '../types/device';
 import {
@@ -62,8 +63,8 @@ export async function registerDevice(
 
 export async function getDevice(
   req: AuthenticatedRequest<DeviceIdParams>,
-  res: Response<ApiResponse<Device>>
-): Promise<Response<ApiResponse<Device>>> {
+  res: Response<ApiResponse<DeviceWithConfig>>
+): Promise<Response<ApiResponse<DeviceWithConfig>>> {
   try {
     logger.info('Get device by ID request');
 
@@ -77,7 +78,7 @@ export async function getDevice(
 
     logger.info('Retrieving device');
 
-    const device: Device | null = await getDeviceById(id);
+    const device: DeviceWithConfig | null = await getDeviceById(id);
 
     if (!device) {
       logger.error('Device not found');
@@ -93,7 +94,10 @@ export async function getDevice(
       return res.status(403).json({ error: 'User not authorised' });
     }
 
-    return res.json(device);
+    return res.json({
+      ...device,
+      ...(device.config?.config && { config: JSON.parse(device.config.config) })
+    });
   } catch (err) {
     return handleApiError(err, res);
   }
