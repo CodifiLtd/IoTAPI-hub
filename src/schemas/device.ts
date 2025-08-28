@@ -13,5 +13,10 @@ export const deviceIdParamsSchema = z.object({
   id: z.string().regex(/^\d+$/, 'Device ID must be a number').transform(Number)
 });
 
+export const deleteDeviceRequestBodySchema = z.object({
+  householdId: z.number('Device ID must be a number')
+});
+
 export type DeviceRequest = z.infer<typeof deviceSchema>;
 export type DeviceIdParams = z.infer<typeof deviceIdParamsSchema>;
+export type DeleteDeviceRequest = z.infer<typeof deleteDeviceRequestBodySchema>;

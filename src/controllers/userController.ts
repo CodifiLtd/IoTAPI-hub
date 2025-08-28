@@ -100,7 +100,7 @@ export async function getUserDevices(
     }
 
     return res.json(devices);
-  } catch (err) {
+  } catch (err: unknown) {
     return handleApiError(err, res, 500);
   }
 }

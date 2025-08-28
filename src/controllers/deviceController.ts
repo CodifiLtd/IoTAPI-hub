@@ -5,10 +5,22 @@ import type { Response } from 'express';
 import type { ApiResponse } from '../types/api';
 import type { Device } from '@prisma/client';
 import type { AuthenticatedRequest } from '../types/auth';
-import type { DeviceIdParams, DeviceRequest } from '../schemas/device';
+import { deleteDeviceRequestBodySchema } from '../schemas/device';
+import type {
+  DeleteDeviceRequest,
+  DeviceIdParams,
+  DeviceRequest
+} from '../schemas/device';
 import { deviceIdParamsSchema, deviceSchema } from '../schemas/device';
-import type { registerDeviceSuccess } from '../types/device';
-import { createDevice, getDeviceById } from '../services/deviceService';
+import type {
+  DeleteDeviceSuccess,
+  registerDeviceSuccess
+} from '../types/device';
+import {
+  createDevice,
+  deleteDeviceById,
+  getDeviceById
+} from '../services/deviceService';
 
 export async function registerDevice(
   req: AuthenticatedRequest<unknown, unknown, DeviceRequest>,
@@ -83,6 +95,43 @@ export async function getDevice(
 
     return res.json(device);
   } catch (err) {
+    return handleApiError(err, res);
+  }
+}
+
+export async function deleteDevice(
+  req: AuthenticatedRequest<DeviceIdParams, unknown, DeleteDeviceRequest>,
+  res: Response<ApiResponse<DeleteDeviceSuccess>>
+): Promise<Response<ApiResponse<DeleteDeviceSuccess>>> {
+  logger.info('Delete device request');
+
+  const parsed = deviceIdParamsSchema.safeParse(req.params);
+
+  if (!parsed.success) {
+    return handleApiError(parsed.error, res);
+  }
+
+  const validatedData: DeleteDeviceRequest =
+    deleteDeviceRequestBodySchema.parse(req.body);
+
+  try {
+    const deleted = await deleteDeviceById(
+      parsed.data.id,
+      validatedData.householdId
+    );
+
+    if (!deleted) {
+      return res
+        .status(404)
+        .json({ error: 'Device not found or not part of household' });
+    }
+
+    return res.status(200).json({
+      message: 'Device deleted successfully',
+      id: deleted.id,
+      deleted: true
+    });
+  } catch (err: unknown) {
     return handleApiError(err, res);
   }
 }

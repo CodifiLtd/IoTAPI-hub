@@ -29,3 +29,20 @@ export async function getDeviceById(id: number): Promise<Device | null> {
     where: { id }
   });
 }
+
+export async function deleteDeviceById(
+  deviceId: number,
+  householdId: number
+): Promise<Device | null> {
+  // verify that the device belongs to the household
+  const device = await prisma.device.findFirst({
+    where: { id: deviceId, householdId }
+  });
+
+  if (!device) {
+    return null;
+  }
+
+  // Delete the device
+  return prisma.device.delete({ where: { id: deviceId } });
+}

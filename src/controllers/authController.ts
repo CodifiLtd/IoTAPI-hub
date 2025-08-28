@@ -50,7 +50,7 @@ export async function login(
     );
 
     return res.json({ id: user.id, email: user.email, token });
-  } catch (err) {
+  } catch (err: unknown) {
     return handleApiError(err, res, 500);
   }
 }

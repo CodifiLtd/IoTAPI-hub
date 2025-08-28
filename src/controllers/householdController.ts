@@ -29,7 +29,7 @@ export async function registerHousehold(
       name: household.name,
       description: household.description
     });
-  } catch (err) {
+  } catch (err: unknown) {
     return handleApiError(err, res);
   }
 }

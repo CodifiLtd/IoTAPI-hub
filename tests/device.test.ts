@@ -2,6 +2,7 @@ import request from 'supertest';
 import app from '../src/app';
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { deleteDeviceById } from '../src/services/deviceService';
 
 jest.mock('../src/logger', () => ({
   logger: {
@@ -28,6 +29,20 @@ jest.mock('../src/services/deviceService', () => ({
     return Promise.resolve(null);
   }),
   getDeviceById: jest.fn().mockImplementation(id => {
+    if (id === 1) {
+      return Promise.resolve({
+        id: 1,
+        serialNumber: 'ABC123',
+        name: 'Some name',
+        description: 'Some description',
+        firmwareVersion: '',
+        householdId: 1,
+        deviceTypeId: 1
+      });
+    }
+    return Promise.resolve(null);
+  }),
+  deleteDeviceById: jest.fn().mockImplementation(id => {
     if (id === 1) {
       return Promise.resolve({
         id: 1,
@@ -189,5 +204,44 @@ describe('GET /devices/:id', () => {
       .set('Authorization', `Bearer ${validToken}`);
     expect(res.status).toBe(403);
     expect(res.body).toHaveProperty('error', 'User not authorised');
+  });
+});
+
+describe('DELETE /devices/:id', () => {
+  it('should return 200 when device is deleted successfully', async () => {
+    const res = await request(app)
+      .delete('/api/v1/devices/1')
+      .set('Authorization', `Bearer ${validToken}`)
+      .send({ householdId: 1 });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('message', 'Device deleted successfully');
+    expect(res.body).toHaveProperty('id', 1);
+    expect(res.body).toHaveProperty('deleted', true);
+  });
+
+  it('should return 401 if no token is provided', async () => {
+    const res = await request(app).delete('/api/v1/devices/1');
+    expect(res.status).toBe(401);
+  });
+
+  it('should return 404 if device not found or not part of household', async () => {
+    const res = await request(app)
+      .delete('/api/v1/devices/999')
+      .set('Authorization', `Bearer ${validToken}`)
+      .send({ householdId: 1 });
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty(
+      'error',
+      'Device not found or not part of household'
+    );
+  });
+
+  it('should return 403 if user not authorised', async () => {
+    const res = await request(app)
+      .delete('/api/v1/devices/1')
+      .set('Authorization', `Bearer ${validToken}`)
+      .send({ householdId: 99 });
+    expect(res.status).toBe(403);
+    expect(res.body).toHaveProperty('error', 'User not part of household');
   });
 });
