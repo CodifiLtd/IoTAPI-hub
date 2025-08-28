@@ -1,0 +1,474 @@
+openapi: 3.0.3
+info:
+  title: IoTAPI Hub
+  version: 1.0.0
+  description: OpenAPI spec for all current routes
+servers:
+  - url: http://localhost:3000
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns API health status. Always returns 200 OK if the API is running.
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User registered
+        '400':
+          description: Validation error
+        '409':
+          description: Email already exists
+        '500':
+          description: Internal server error
+    get:
+      tags:
+        - Users
+      summary: Get user by ID (protected)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User found
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+        '400':
+          description: Invalid ID param
+        '500':
+          description: Internal server error
+  /users/{id}/devices:
+    get:
+      tags:
+        - Users
+      summary: Get all devices for a user (protected)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceRegistration'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (user not authorised)
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+  
+  /login:
+    post:
+      tags:
+        - Login
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+        '400':
+          description: Validation error
+        '500':
+          description: Internal server error
+  
+  /households:
+    post:
+      tags:
+        - Households
+      summary: Register a new household (protected)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HouseholdRegistration'
+      responses:
+        '201':
+          description: Household registered
+        '401':
+          description: Unauthorized
+        '400':
+          description: Validation error
+        '500':
+          description: Internal server error
+
+  /devices:
+    post:
+      tags:
+        - Devices
+      summary: Register a new device (protected)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceRegistration'
+      responses:
+        '201':
+          description: Device registered
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (user not part of household or guest not permitted to register device)
+        '409':
+          description: Device already exists
+        '500':
+          description: Internal server error
+
+  /devices/{id}:
+    get:
+      tags:
+        - Devices
+      summary: Get a device by ID (protected)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Device found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  serialNumber:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  firmwareVersion:
+                    type: string
+                  householdId:
+                    type: integer
+                  deviceTypeId:
+                    type: integer
+                  config:
+                    type: object
+                    nullable: true
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (user not authorised)
+        '404':
+          description: Device not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete a device
+      description: Deletes a device by its ID (protected)
+      tags:
+        - Devices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                householdId:
+                  type: integer
+      responses:
+        '200':
+          description: Device deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: integer
+                  deleted:
+                    type: boolean
+        '401':
+          description: Unauthorized - missing or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '403':
+          description: Forbidden - user not authorised for device
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Device not found or not part of household
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /devices/{id}/config:
+    get:
+      summary: Get device config
+      description: Retrieve the config for a device (protected)
+      tags:
+        - Devices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Device config found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  config:
+                    type: object
+                  deviceId:
+                    type: integer
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Device config not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    put:
+      summary: Upsert device config
+      description: Create or update a device config (protected)
+      tags:
+        - Devices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                config:
+                  type: object
+      responses:
+        '200':
+          description: Device config upserted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  config:
+                    type: object
+                  deviceId:
+                    type: integer
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Device not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserRegistration:
+      type: object
+      properties:
+        forename:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    HouseholdRegistration:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    DeviceRegistration:
+      type: object
+      properties:
+        serialNumber:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        firmwareVersion:
+          type: string
+        householdId:
+          type: integer
+        deviceTypeId:
+          type: integer
