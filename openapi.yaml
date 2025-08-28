@@ -1,4 +1,3 @@
-
 openapi: 3.0.3
 info:
   title: IoTAPI Hub
@@ -7,6 +6,23 @@ info:
 servers:
   - url: http://localhost:3000
 paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns API health status. Always returns 200 OK if the API is running.
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
   /users:
     post:
       tags:
