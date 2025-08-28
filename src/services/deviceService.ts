@@ -61,5 +61,5 @@ export async function deleteDeviceById(
   }
 
   // Delete the device
-  return prisma.device.delete({ where: { id: deviceId } });
+  return await prisma.device.delete({ where: { id: deviceId } });
 }
